@@ -26,7 +26,7 @@ class LoginScreen extends StatelessWidget {
                 height: 50,
               ),
 
-              Text("Login",style:TextStyle(
+              Text("Signe in",style:TextStyle(
                 fontWeight:FontWeight.w700 ,
                 color: Colors.white ,
                 fontSize: 28 ,
@@ -100,23 +100,23 @@ class LoginScreen extends StatelessWidget {
 
 
                                   child: ElevatedButton( onPressed: () async {
-                                    final user = await DatabaseHelper.instance.getUser(
+                                      final user = await DatabaseHelper.instance.getUser(
                                       _emailController.text,
                                       _passwordController.text,
-                                    );
+                                      );
 
-                                    if (user != null) {
-                                      Navigator.pushReplacementNamed(
+                                      if (user != null) {
+                                        Navigator.pushReplacementNamed(
                                         context,
                                         '/home',
                                         arguments: user, // Pass the user object
                                       );
-                                    } else {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(content: Text('Login failed')),
                                       );
-                                    }
-                                  },
+                                      }
+                                      },
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.blue,
                                         padding: EdgeInsets.symmetric(
@@ -144,24 +144,25 @@ class LoginScreen extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-
-                                TextButton(
-                                  child: Text('Create Account',style:TextStyle(
+                                Text("Don't have account?",
+                                  style:TextStyle(
                                     color: Colors.blue ,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold ,
 
-                                  ),),
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (_) => RegisterScreen()),
-                                    );
-                                  },
+                                  ),
                                 ),
                               ],
                             ),
-
+                            TextButton(
+                              child: Text('Create Account'),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => RegisterScreen()),
+                                );
+                              },
+                            ),
 
 
 

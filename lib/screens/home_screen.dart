@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/event.dart';
 import '../models/user.dart';
 import 'add_event_screen.dart';
-
+import '../database_helper.dart';
 class HomeScreen extends StatefulWidget {
   final User user;
 
@@ -24,7 +24,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadEvents() async {
     // You'll need to implement getEvents in DatabaseHelper
     // _events = await DatabaseHelper.instance.getEvents(widget.user.id!);
-    setState(() {});
+    try {
+      final events = await DatabaseHelper.instance.getEvents(widget.user.id!);
+      setState(() {
+        _events = events;
+      });
+    } catch (e) {
+      print('Error loading events: $e');
+      // Handle error appropriately
+    }
   }
 
   @override
@@ -35,8 +43,36 @@ class _HomeScreenState extends State<HomeScreen> {
         itemCount: _events.length,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(_events[index].title),
-            subtitle: Text(_events[index].dateTime),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            tileColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide(color: Colors.grey.shade200),
+            ),
+            title: Text(
+              _events[index].title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.black87,
+              ),
+            ),
+            subtitle: Text(
+              _events[index].description,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black54,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: Text(
+              _events[index].dateTime.split('T')[0],
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black54,
+              ),
+            ),
           );
         },
       ),
