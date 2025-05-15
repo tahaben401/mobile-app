@@ -3,6 +3,7 @@ import '../models/event.dart';
 import '../models/user.dart';
 import 'add_event_screen.dart';
 import '../database_helper.dart';
+import 'calendar_screen.dart';
 class HomeScreen extends StatefulWidget {
   final User user;
 
@@ -39,42 +40,53 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('My Events')),
-      body: ListView.builder(
-        itemCount: _events.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            tileColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-              side: BorderSide(color: Colors.grey.shade200),
+      body: Column(
+        children: [
+          Expanded(
+            flex: 3,
+            child: CalendarScreen(),
+          ),
+          Expanded(
+            flex: 3,
+            child: ListView.builder(
+              itemCount: _events.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  tileColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: BorderSide(color: Colors.grey.shade200),
+                  ),
+                  title: Text(
+                    _events[index].title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  subtitle: Text(
+                    _events[index].description,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: Text(
+                    _events[index].dateTime.split('T')[0],
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                  ),
+                );
+              },
             ),
-            title: Text(
-              _events[index].title,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: Colors.black87,
-              ),
-            ),
-            subtitle: Text(
-              _events[index].description,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.black54,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            trailing: Text(
-              _events[index].dateTime.split('T')[0],
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.black54,
-              ),
-            ),
-          );
-        },
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
@@ -87,5 +99,4 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
     );
-  }
-}
+  }}

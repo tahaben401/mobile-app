@@ -98,6 +98,16 @@ class DatabaseHelper {
     );
     return result.map((map) => Event.fromMap(map)).toList();
   }
+  Future<List<Event>> getEventsbydate(String userId, String dateTime) async {
+    final db = await instance.database;
+    final result = await db.query(
+      'events',
+      where: 'userId = ? AND dateTime = ?',
+      whereArgs: [userId,dateTime],
+      orderBy: 'dateTime ASC',
+    );
+    return result.map((map) => Event.fromMap(map)).toList();
+  }
 
   Future<int> updateEvent(Event event) async {
     final db = await instance.database;

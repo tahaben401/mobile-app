@@ -52,9 +52,9 @@ class _AddEventScreenState extends State<AddEventScreen> {
       try {
         final event = Event(
           title: _titleController.text,
-          dateTime:_selectedDateTime.toIso8601String(),
+          dateTime: _selectedDateTime.toIso8601String(),
           description: _descController.text,
-          userId:widget.user.id!,
+          userId: widget.user.id!,
         );
 
         await DatabaseHelper.instance.addEvent(event);
@@ -73,66 +73,124 @@ class _AddEventScreenState extends State<AddEventScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Event'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _saveEvent,
+
+
+      body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(colors: [Color(0xff0277BD), Color(0xff03A9F4) , Color(0xff80D8FF)] ,begin: Alignment.topLeft , end: Alignment.topRight),
           ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
+
+
+
+          child :Column(
             children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Event Title*',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.title),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a title';
-                  }
-                  return null;
-                },
+
+              Container(
+                  child: Column(
+                    children: [
+                      Container(padding: EdgeInsets.only(top: 40 ,left: 30 ,bottom: 10),
+                        child: Row(children: [
+                          IconButton(
+                            icon: Icon(Icons.arrow_back,
+                              color: Colors.white,
+                              size: 30.0,
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                          SizedBox(width: 10,),
+                          Text("Add Event",style:TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 32,
+                            color: Colors.white,
+                          ),),
+                        ],
+                        ),
+                      )
+
+                    ],
+
+                  )
+
+
               ),
-              const SizedBox(height: 20),
-              ListTile(
-                leading: const Icon(Icons.calendar_today),
-                title: const Text('Date & Time'),
-                subtitle: Text(
-                  DateFormat('MMM dd, yyyy - hh:mm a').format(_selectedDateTime),
-                ),
-                trailing: const Icon(Icons.edit),
-                onTap: () => _selectDateTime(context),
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _descController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.description),
-                ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                onPressed: _saveEvent,
-                child: const Text('SAVE EVENT'),
-              ),
+
+              Expanded(
+
+
+                  child: Container(
+
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                    ),
+
+                    child: Form(
+                      key: _formKey,
+                      child: ListView(
+                        padding: EdgeInsets.only(top: 50 ,left: 20 , right: 20),
+                        children: [
+                          SizedBox(height: 50,),
+                          TextFormField(
+
+                            controller: _titleController,
+                            decoration: const InputDecoration(
+                              labelText: 'Event Title*',
+                              border: OutlineInputBorder(),
+                              prefixIcon: Icon(Icons.title),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a title';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          ListTile(
+                            leading: const Icon(Icons.calendar_today),
+                            title: const Text('Date & Time'),
+                            subtitle: Text(
+                              DateFormat('MMM dd, yyyy - hh:mm a').format(_selectedDateTime),
+                            ),
+                            trailing: const Icon(Icons.edit),
+                            onTap: () => _selectDateTime(context),
+                          ),
+                          const SizedBox(height: 20),
+                          TextFormField(
+                            controller: _descController,
+                            decoration: const InputDecoration(
+                              labelText: 'Description',
+                              border: OutlineInputBorder(),
+                              prefixIcon: Icon(Icons.description),
+                            ),
+                            maxLines: 3,
+                          ),
+                          const SizedBox(height: 30),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              backgroundColor: Colors.blue,
+                            ),
+                            onPressed: _saveEvent,
+                            child:Text('SAVE EVENT',style:TextStyle(
+                              fontWeight: FontWeight.bold ,
+                              color: Colors.white,
+                              fontSize: 20 ,
+                            ),),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )),
+
             ],
-          ),
-        ),
+          )
+
       ),
     );
   }
