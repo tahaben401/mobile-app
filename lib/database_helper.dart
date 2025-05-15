@@ -6,13 +6,13 @@ import './models/user.dart';
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
   static Database? _database;
-  static int _currentVersion = 2;  // Changed from 1 to 2
+  static const int _currentVersion = 7;
 
   DatabaseHelper._init();
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('events.db');
+    _database = await _initDB('eventsG.db');
     return _database!;
   }
 
@@ -24,7 +24,7 @@ class DatabaseHelper {
       path,
       version: _currentVersion,
       onCreate: _createDB,
-      onUpgrade: _onUpgrade,
+      //onUpgrade: _onUpgrade,
     );
   }
 
@@ -33,47 +33,42 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL
       )
     ''');
 
-    // Create events table with correct field name
+    // Create events table
     await db.execute('''
       CREATE TABLE events (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
         dateTime TEXT NOT NULL,
-        description TEXT,
+        description TEXT NOT NULL,
         userId INTEGER NOT NULL
       )
     ''');
   }
 
-  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < newVersion) {
-      try {
-        await _migrateToNewSchema(db);
-      } catch (e) {
-        print('Migration error: $e');
-      }
-    }
-  }
-
-  Future<void> _migrateToNewSchema(Database db) async {
-    try {
-      await db.execute('''
-        ALTER TABLE events ADD COLUMN description TEXT
-      ''');
-    } catch (e) {
-      print('Migration error: $e');
-    }
-  }
+  // Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
+  //
+  //     // Migration from version 1 to 2
+  //     await db.execute('ALTER TABLE events ADD COLUMN dateTime TEXT');
+  //
+  //   // Add more version migrations here as needed
+  // }
 
   // User operations
   Future<int> createUser(User user) async {
     final db = await instance.database;
-    return await db.insert('users', user.toMap());
+    try {
+      return await db.insert('users', user.toMap());
+    } catch (e) {
+      if (e is DatabaseException && e.isUniqueConstraintError()) {
+        throw Exception('Email already exists');
+      }
+      rethrow;
+    }
   }
 
   Future<User?> getUser(String email, String password) async {
@@ -82,6 +77,7 @@ class DatabaseHelper {
       'users',
       where: 'email = ? AND password = ?',
       whereArgs: [email, password],
+      limit: 1,
     );
     return result.isNotEmpty ? User.fromMap(result.first) : null;
   }
@@ -98,12 +94,32 @@ class DatabaseHelper {
       'events',
       where: 'userId = ?',
       whereArgs: [userId],
+      orderBy: 'dateTime ASC',
     );
     return result.map((map) => Event.fromMap(map)).toList();
   }
 
+  Future<int> updateEvent(Event event) async {
+    final db = await instance.database;
+    return await db.update(
+      'events',
+      event.toMap(),
+      where: 'id = ?',
+      whereArgs: [event.id],
+    );
+  }
+
+  Future<int> deleteEvent(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      'events',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   Future close() async {
     final db = await instance.database;
-    await db.close();
+    db.close();
   }
 }

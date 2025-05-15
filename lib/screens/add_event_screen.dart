@@ -52,9 +52,9 @@ class _AddEventScreenState extends State<AddEventScreen> {
       try {
         final event = Event(
           title: _titleController.text,
-          dateTime: _selectedDateTime.toIso8601String(),
+          dateTime:_selectedDateTime.toIso8601String(),
           description: _descController.text,
-          userId: widget.user.id!,
+          userId:widget.user.id!,
         );
 
         await DatabaseHelper.instance.addEvent(event);

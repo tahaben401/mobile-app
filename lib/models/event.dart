@@ -18,8 +18,9 @@ class Event {
     return {
       'id': id,
       'title': title,
-      'description': description,
+
       'dateTime': dateTime,  // Already in ISO8601 format
+      'description': description,
       'userId': userId,
     };
   }
