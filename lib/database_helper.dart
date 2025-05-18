@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import './models/event.dart';
@@ -98,7 +100,7 @@ class DatabaseHelper {
     );
     return result.map((map) => Event.fromMap(map)).toList();
   }
-  Future<List<Event>> getEventsbydate(String userId, String dateTime) async {
+  Future<List<Event>> getEventsbydate(int userId, String dateTime) async {
     final db = await instance.database;
     final result = await db.query(
       'events',

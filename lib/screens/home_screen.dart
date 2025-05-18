@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:table_calendar/table_calendar.dart';
 import '../models/event.dart';
 import '../models/user.dart';
 import 'add_event_screen.dart';
 import '../database_helper.dart';
-import 'calendar_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   final User user;
 
@@ -16,6 +18,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Event> _events = [];
 
+  // Calendar state variables
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+
   @override
   void initState() {
     super.initState();
@@ -23,10 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadEvents() async {
-    // You'll need to implement getEvents in DatabaseHelper
-    // _events = await DatabaseHelper.instance.getEvents(widget.user.id!);
     try {
-      final events = await DatabaseHelper.instance.getEvents(widget.user.id!);
+      final events = await DatabaseHelper.instance.getEventsbydate(widget.user.id!,_selectedDay!.toIso8601String().split('T')[0]);
       setState(() {
         _events = events;
       });
@@ -44,7 +49,29 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Expanded(
             flex: 3,
-            child: CalendarScreen(),
+            child: TableCalendar(
+              firstDay: DateTime(2000),
+              lastDay: DateTime(2100),
+              focusedDay: _focusedDay,
+              calendarFormat: _calendarFormat,
+              selectedDayPredicate: (day) => _selectedDay == day,
+              onDaySelected: (selectedDay, focusedDay) {
+                print(_selectedDay!.toIso8601String().split('T')[0]);
+                setState(() {
+                  _selectedDay = selectedDay;
+                  _focusedDay = focusedDay;
+                  _loadEvents();
+                });
+              },
+              onPageChanged: (focusedDay) {
+                _focusedDay = focusedDay;
+              },
+              onFormatChanged: (format) {
+                setState(() {
+                  _calendarFormat = format;
+                });
+              },
+            ),
           ),
           Expanded(
             flex: 3,
@@ -99,4 +126,5 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
     );
-  }}
+  }
+}

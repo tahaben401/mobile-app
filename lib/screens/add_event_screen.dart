@@ -52,7 +52,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
       try {
         final event = Event(
           title: _titleController.text,
-          dateTime: _selectedDateTime.toIso8601String(),
+          dateTime: _selectedDateTime.toIso8601String().split('T')[0],
           description: _descController.text,
           userId: widget.user.id!,
         );
