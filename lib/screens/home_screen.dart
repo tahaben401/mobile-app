@@ -17,8 +17,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<Event> _events = [];
-
-  // Calendar state variables
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.month;
@@ -26,12 +24,17 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedDay = _focusedDay; // Initialize with current date
     _loadEvents();
   }
 
   Future<void> _loadEvents() async {
     try {
-      final events = await DatabaseHelper.instance.getEventsbydate(widget.user.id!,_selectedDay!.toIso8601String().split('T')[0]);
+      final events = await DatabaseHelper.instance.getEventsbydate(
+          widget.user.id!,
+          _selectedDay != null ? _selectedDay!.toIso8601String().split('T')[0] :
+          _focusedDay.toIso8601String().split('T')[0]
+      );
       setState(() {
         _events = events;
       });
@@ -56,7 +59,6 @@ class _HomeScreenState extends State<HomeScreen> {
               calendarFormat: _calendarFormat,
               selectedDayPredicate: (day) => _selectedDay == day,
               onDaySelected: (selectedDay, focusedDay) {
-                print(_selectedDay!.toIso8601String().split('T')[0]);
                 setState(() {
                   _selectedDay = selectedDay;
                   _focusedDay = focusedDay;
@@ -75,7 +77,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Expanded(
             flex: 3,
-            child: ListView.builder(
+            child: _events.isEmpty
+                ? Center(child: Text('No events found'))
+                : ListView.builder(
               itemCount: _events.length,
               itemBuilder: (context, index) {
                 return ListTile(
