@@ -20,12 +20,13 @@ class _HomeScreenState extends State<HomeScreen> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.month;
-
+  Map<String, int> _eventCounts = {};
   @override
   void initState() {
     super.initState();
     _selectedDay = _focusedDay; // Initialize with current date
     _loadEvents();
+    _loadEventCounts();
   }
 
   Future<void> _loadEvents() async {
@@ -43,7 +44,19 @@ class _HomeScreenState extends State<HomeScreen> {
       // Handle error appropriately
     }
   }
+  Future<void> _loadEventCounts() async {
+    final events = await DatabaseHelper.instance.getEvents(widget.user.id!);
+    final counts = <String, int>{};
 
+    for (var event in events) {
+      final date = event.dateTime; // Get just the date part
+      counts[date] = (counts[date] ?? 0) + 1;
+    }
+
+    setState(() {
+      _eventCounts = counts;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,6 +86,40 @@ class _HomeScreenState extends State<HomeScreen> {
                   _calendarFormat = format;
                 });
               },
+              calendarBuilders: CalendarBuilders(
+                defaultBuilder: (context, day, focusedDay) {
+                  final dateStr = day.toIso8601String().split('T')[0];
+                  final count = _eventCounts[dateStr] ?? 0;
+
+                  return Stack(
+                    children: [
+                      Center(child: Text('${day.day}')),
+                      if (count > 0)
+                        Positioned(
+                          right: 4,
+                          top: 4,
+                          child: Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                '$count',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
           Expanded(
@@ -127,6 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
             MaterialPageRoute(builder: (_) => AddEventScreen(user: widget.user)),
           );
           _loadEvents();
+          _loadEventCounts();
         },
       ),
     );
