@@ -102,7 +102,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
                           SizedBox(width: 10,),
                           Text("Add Event",style:TextStyle(
                             fontWeight: FontWeight.w700,
-                            fontSize: 32,
+                            fontSize: 26,
                             color: Colors.white,
                           ),),
                         ],

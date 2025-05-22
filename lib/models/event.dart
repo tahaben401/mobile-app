@@ -46,4 +46,17 @@ class Event {
     final date = DateTime.parse(dateTime);
     return '${date.hour}:${date.minute.toString().padLeft(2, '0')}';
   }
+  Event copyWith({
+    String? title,
+    String? description,
+  }) {
+    return Event(
+      id: id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      dateTime: dateTime,
+      userId: userId,
+    );
+  }
+
 }
