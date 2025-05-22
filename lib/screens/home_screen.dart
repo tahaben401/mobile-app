@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: 30,),
             Expanded(
-              flex: 3,
+              flex: 4,
               child: TableCalendar(
                 firstDay: DateTime(2000),
                 lastDay: DateTime(2100),
@@ -355,6 +355,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             try {
                               await DatabaseHelper.instance.deleteEvent(_events[index].id!);
                               setState(() => _events.removeAt(index));
+                              _loadEvents();
+                              _loadEventCounts();
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text('Error: $e')),
