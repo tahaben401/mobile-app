@@ -159,33 +159,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                     SizedBox(height: 30),
 
-                    // Logout Button
-                    Container(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () => _showLogoutDialog(),
-                        icon: Icon(
-                          Icons.logout,
-                          color: Colors.white,
-                        ),
-                        label: Text(
-                          'Sign Out',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red.shade600,
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 2,
-                        ),
-                      ),
-                    ),
+
+
 
                     SizedBox(height: 40),
                   ],
@@ -621,28 +596,5 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Sign Out'),
-        content: Text('Are you sure you want to sign out?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // Navigate back to login screen
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('Sign Out', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
+
 }
