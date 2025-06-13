@@ -6,6 +6,7 @@ import '../models/user.dart';
 import 'add_event_screen.dart';
 import '../database_helper.dart';
 import 'profile_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final User user;
@@ -379,7 +380,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             );
                             break;
                           case 'settings':
-                          // Handle settings navigation
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SettingsScreen(user: widget.user),
+                              ),
+                            );
                             break;
                           case 'logout':
                             _showLogoutConfirmation();

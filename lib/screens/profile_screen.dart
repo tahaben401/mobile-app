@@ -1,14 +1,62 @@
 import 'package:flutter/material.dart';
 import '../models/user.dart';
+import '../models/event.dart';
 import '../database_helper.dart';
-class ProfileScreen extends StatelessWidget {
+
+class ProfileScreen extends StatefulWidget {
   final User user;
 
   ProfileScreen({required this.user});
 
   @override
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  int totalEvents = 0;
+  int activeEvents = 0;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEventStats();
+  }
+
+  Future<void> _loadEventStats() async {
+    try {
+      // Get all events for this user
+      List<Event> userEvents = await DatabaseHelper.instance.getEvents(widget.user.id!);
+
+      // Calculate total events
+      int total = userEvents.length;
+
+      // Calculate active events (events that are today or in the future)
+      DateTime now = DateTime.now();
+      DateTime today = DateTime(now.year, now.month, now.day);
+
+      int active = userEvents.where((event) {
+        DateTime eventDate = DateTime.parse(event.dateTime);
+        DateTime eventDateOnly = DateTime(eventDate.year, eventDate.month, eventDate.day);
+        return eventDateOnly.isAfter(today) || eventDateOnly.isAtSameMomentAs(today);
+      }).length;
+
+      setState(() {
+        totalEvents = total;
+        activeEvents = active;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading event stats: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    String userName = user.email.split('@')[0];
+    String userName = widget.user.email.split('@')[0];
 
     return Scaffold(
       body: Container(
@@ -152,7 +200,7 @@ class ProfileScreen extends StatelessWidget {
                     _buildInfoCard(
                       icon: Icons.email,
                       title: 'Email Address',
-                      value: user.email,
+                      value: widget.user.email,
                       gradient: [Colors.blue.shade400, Colors.blue.shade600],
                     ),
 
@@ -161,14 +209,14 @@ class ProfileScreen extends StatelessWidget {
                     _buildInfoCard(
                       icon: Icons.lock,
                       title: 'Password',
-                      value: user.password,
+                      value: widget.user.password,
                       gradient: [Colors.blue.shade400, Colors.blue.shade600],
                       isPassword: true,
                     ),
 
                     SizedBox(height: 30),
 
-                    // Account Stats Section
+                    // Account Stats Section - Now Dynamic
                     Container(
                       padding: EdgeInsets.all(24),
                       decoration: BoxDecoration(
@@ -209,43 +257,100 @@ class ProfileScreen extends StatelessWidget {
                                   color: Colors.blue.shade800,
                                 ),
                               ),
+                              Spacer(),
+                              if (isLoading)
+                                SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.blue.shade400,
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
                           SizedBox(height: 20),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildStatItem(
-                                  icon: Icons.event,
-                                  label: 'Events Created',
-                                  value: '12',
-                                  color: Colors.green,
+                          if (!isLoading) ...[
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildStatItem(
+                                    icon: Icons.event,
+                                    label: 'Total Events',
+                                    value: totalEvents.toString(),
+                                    color: Colors.green,
+                                  ),
+                                ),
+                                Container(
+                                  width: 1,
+                                  height: 50,
+                                  color: Colors.grey.shade200,
+                                  margin: EdgeInsets.symmetric(horizontal: 20),
+                                ),
+                                Expanded(
+                                  child: _buildStatItem(
+                                    icon: Icons.calendar_today,
+                                    label: 'Active Events',
+                                    value: activeEvents.toString(),
+                                    color: Colors.orange,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ] else ...[
+                            // Loading state
+                            Container(
+                              height: 80,
+                              child: Center(
+                                child: Text(
+                                  'Loading statistics...',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 14,
+                                  ),
                                 ),
                               ),
-                              Container(
-                                width: 1,
-                                height: 50,
-                                color: Colors.grey.shade200,
-                                margin: EdgeInsets.symmetric(horizontal: 20),
-                              ),
-                              Expanded(
-                                child: _buildStatItem(
-                                  icon: Icons.calendar_today,
-                                  label: 'Active Events',
-                                  value: '3',
-                                  color: Colors.orange,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
 
                     SizedBox(height: 30),
 
-                    // Settings Section
-
+                    // Refresh Button
+                    Container(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: isLoading ? null : () {
+                          setState(() {
+                            isLoading = true;
+                          });
+                          _loadEventStats();
+                        },
+                        icon: Icon(
+                          Icons.refresh,
+                          color: Colors.white,
+                        ),
+                        label: Text(
+                          'Refresh Statistics',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue.shade600,
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2,
+                        ),
+                      ),
+                    ),
 
                     SizedBox(height: 40),
                   ],
@@ -377,6 +482,4 @@ class ProfileScreen extends StatelessWidget {
       ],
     );
   }
-
-
 }
